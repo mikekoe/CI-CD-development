@@ -1,41 +1,26 @@
-<<<<<<< HEAD
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-=======
-
->>>>>>> eb8c6fd54d63f703b0542e9df917453fcf6e159c
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
 jobs:
   print_hello:
     docker:
       - image:  circleci/node:13.8.0
     steps:
-<<<<<<< HEAD
       - run:  echo hello
   print_world:
     docker:
       - image:  circleci/node:13.8.0
     steps:
       - run:  echo world
-=======
+
       - checkout
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
->>>>>>> eb8c6fd54d63f703b0542e9df917453fcf6e159c
 
 workflows:
-<<<<<<< HEAD
   welcome:
     jobs:
       - print_hello
       - print_world:
         requires:
           print_hello
-  
-=======
-  say-hello-workflow:
-    jobs:
-      - say-hello
->>>>>>> eb8c6fd54d63f703b0542e9df917453fcf6e159c
+
