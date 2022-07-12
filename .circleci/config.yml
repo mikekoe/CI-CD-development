@@ -2,22 +2,19 @@ version: 2.1
 orbs: 
   slack: circleci/slack@4.10.1
 
-commands:
-  notify_on_failure:
-      steps:
-      - slack/notify:
-          event: fail
-          channel: udapeople-app-cicd
-          template: basic_fail_1 
 jobs:
-  notify_on_success:
+  notify:
     docker:
-    - image: cimg/base:stable
+      - image: cimg/base:stable
     steps:
-    - slack/notify:
-        event: pass
-        channel: udapeople-app-cicd
-        template: success_tagged_deployment_1
+      - slack/notify:
+          channel:  udapeople-app-cicd
+          event:  fail
+          template: basic_fail_1
+      - slack/notify:
+          channel:  udapeople-app-cicd
+          event:  pass
+          template: success_tagged_deploy_1
 
   build_frontend:
     docker:
@@ -32,10 +29,7 @@ jobs:
             cd frontend
             npm install
             npm run build    
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-builder
-      - notify_on_failure
+      - notify
 
   build_backend:
     docker:
@@ -50,10 +44,7 @@ jobs:
             cd backend
             npm install
             npm run build    
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-builder
-      - notify_on_failure
+      - notify
 
   test-frontend:
     docker:
@@ -68,6 +59,7 @@ jobs:
             cd frontend
             npm install
             npm run test 
+      - notify
 
   test-backend:
     docker:
@@ -82,7 +74,8 @@ jobs:
             cd backend
             npm install
             npm run test    
-  
+      - notify
+
   scan-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -97,7 +90,8 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-            
+      - notify
+
   scan-backend:
     docker:
       - image:  cimg/node:13.8.0
@@ -113,10 +107,12 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
+      - notify
 
 workflows:
   default:
     jobs:
+      
       - build_frontend
       - build_backend
       - test-frontend:
@@ -127,8 +123,8 @@ workflows:
           requires: [build_frontend]
       - scan-backend:
           requires: [build_backend]
-      - notify_on_success:
-          requires: [build_backend]
+      - notify:
+          context:  slack-udapeople
 
           
 
