@@ -3,19 +3,12 @@ orbs:
   slack: circleci/slack@4.10.1
 
 commands:
-  notify_slack_error:
+  notify_on_failure:
     steps:
       - slack/notify:
-        event:  fail
-        channel:  udapeople-app-cicd
-        template: basic_fail_1
-
-  notify_slack_pass:
-    steps:
-      - slack/notify:
-        event:  pass
-        channel:  udapeople-app-cicd
-        template: basic_success_1
+          event:  fail
+          channel:  udapeople-app-cicd
+          template: basic_fail_1
 
 jobs:
   build_frontend:
@@ -31,10 +24,11 @@ jobs:
             cd frontend
             npm install
             npm run build  
-      - notify_slack_error
-      - notify_slack_pass  
-      
-
+      - save_cache:
+            paths: [frontend/node_modules]
+            key: frontend-builder
+        - notify_on_failure
+  
   build_backend:
     docker:
       - image:  cimg/node:13.8.0
@@ -48,8 +42,10 @@ jobs:
             cd backend
             npm install
             npm run build    
-      - notify_slack_error
-      - notify_slack_pass 
+      - save_cache:
+            paths: [backend/node_modules]
+            key: backend-builder
+        - notify_on_failure
 
   test-frontend:
     docker:
@@ -64,8 +60,10 @@ jobs:
             cd frontend
             npm install
             npm run test 
-      - notify_slack_error
-      - notify_slack_pass 
+      - save_cache:
+            paths: [frontend/node_modules]
+            key: frontend-builder
+        - notify_on_failure
 
   test-backend:
     docker:
@@ -80,9 +78,10 @@ jobs:
             cd backend
             npm install
             npm run test 
-      - notify_slack_error
-      - notify_slack_pass    
-      
+      - save_cache:
+            paths: [backend/node_modules]
+            key: backend-builder
+        - notify_on_failure
 
   scan-frontend:
     docker:
@@ -98,8 +97,11 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify_slack_error
-      - notify_slack_pass 
+
+      - save_cache:
+            paths: [frontend/node_modules]
+            key: frontend-builder
+        - notify_on_failure
 
   scan-backend:
     docker:
@@ -116,13 +118,23 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify_slack_error
-      - notify_slack_pass 
+      - save_cache:
+            paths: [backend/node_modules]
+            key: backend-builder
+        - notify_on_failure
+
+  notify_on_success:
+    docker:
+    - image: cimg/base:stable
+    steps:
+    - slack/notify:
+        event: pass
+        channel: udapeople-app-cicd
+        template: success_tagged_deployment_1
 
 workflows:
   default:
     jobs:
-      
       - build_frontend
       - build_backend
       - test-frontend:
@@ -133,7 +145,7 @@ workflows:
           requires: [build_frontend]
       - scan-backend:
           requires: [build_backend]
-      
-
+      - notify_on_success:
+        requires: [scan-backend]
           
 
