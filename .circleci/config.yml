@@ -4,13 +4,20 @@ orbs:
 
 commands:
   notify_on_failure:
-    steps:
+      steps:
       - slack/notify:
           event: fail
           channel: udapeople-app-cicd
-          template: basic_fail_1
-  
+          template: basic_fail_1 
 jobs:
+  notify_on_success:
+    docker:
+    - image: cimg/base:stable
+    steps:
+    - slack/notify:
+        event: pass
+        channel: udapeople-app-cicd
+        template: success_tagged_deployment_1
 
   build_frontend:
     docker:
@@ -106,15 +113,6 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-
-  notify_on_success:
-    docker:
-      - image: cimg/base:stable
-    steps:
-    - slack/notify:
-        event: pass
-        channel: udapeople-app-cicd
-        template: success_tagged_deployment_1
 
 workflows:
   default:
