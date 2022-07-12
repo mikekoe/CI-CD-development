@@ -2,20 +2,22 @@ version: 2.1
 orbs: 
   slack: circleci/slack@4.10.1
 
-jobs:
-  notify:
-    docker:
-      - image: cimg/base:stable
+commands:
+  notify_slack_error:
     steps:
       - slack/notify:
-          channel:  udapeople-app-cicd
-          event:  fail
-          template: basic_fail_1
-      - slack/notify:
-          channel:  udapeople-app-cicd
-          event:  pass
-          template: success_tagged_deploy_1
+        event:  fail
+        channel:  udapeople-app-cicd
+        template: basic_fail_1
 
+  notify_slack_pass:
+    steps:
+      - slack/notify:
+        event:  pass
+        channel:  udapeople-app-cicd
+        template: basic_success_1
+
+jobs:
   build_frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -28,8 +30,10 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm run build    
-      - notify
+            npm run build  
+      - notify_slack_error
+      - notify_slack_pass  
+      
 
   build_backend:
     docker:
@@ -44,7 +48,8 @@ jobs:
             cd backend
             npm install
             npm run build    
-      - notify
+      - notify_slack_error
+      - notify_slack_pass 
 
   test-frontend:
     docker:
@@ -59,7 +64,8 @@ jobs:
             cd frontend
             npm install
             npm run test 
-      - notify
+      - notify_slack_error
+      - notify_slack_pass 
 
   test-backend:
     docker:
@@ -73,8 +79,10 @@ jobs:
           command: |
             cd backend
             npm install
-            npm run test    
-      - notify
+            npm run test 
+      - notify_slack_error
+      - notify_slack_pass    
+      
 
   scan-frontend:
     docker:
@@ -90,7 +98,8 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify
+      - notify_slack_error
+      - notify_slack_pass 
 
   scan-backend:
     docker:
@@ -107,7 +116,8 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify
+      - notify_slack_error
+      - notify_slack_pass 
 
 workflows:
   default:
@@ -123,8 +133,7 @@ workflows:
           requires: [build_frontend]
       - scan-backend:
           requires: [build_backend]
-      - notify:
-          context:  slack-udapeople
+      
 
           
 
