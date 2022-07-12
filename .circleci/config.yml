@@ -27,7 +27,7 @@ jobs:
       - save_cache:
             paths: [frontend/node_modules]
             key: frontend-builder
-        - notify_on_failure
+      - notify_on_failure
   
   build_backend:
     docker:
@@ -45,7 +45,7 @@ jobs:
       - save_cache:
             paths: [backend/node_modules]
             key: backend-builder
-        - notify_on_failure
+      - notify_on_failure
 
   test-frontend:
     docker:
@@ -63,7 +63,7 @@ jobs:
       - save_cache:
             paths: [frontend/node_modules]
             key: frontend-builder
-        - notify_on_failure
+      - notify_on_failure
 
   test-backend:
     docker:
@@ -81,7 +81,7 @@ jobs:
       - save_cache:
             paths: [backend/node_modules]
             key: backend-builder
-        - notify_on_failure
+      - notify_on_failure
 
   scan-frontend:
     docker:
@@ -101,7 +101,7 @@ jobs:
       - save_cache:
             paths: [frontend/node_modules]
             key: frontend-builder
-        - notify_on_failure
+      - notify_on_failure
 
   scan-backend:
     docker:
@@ -121,7 +121,7 @@ jobs:
       - save_cache:
             paths: [backend/node_modules]
             key: backend-builder
-        - notify_on_failure
+      - notify_on_failure
 
   notify_on_success:
     docker:
@@ -146,6 +146,6 @@ workflows:
       - scan-backend:
           requires: [build_backend]
       - notify_on_success:
-        requires: [scan-backend]
+          requires: [build_backend]
           
 
