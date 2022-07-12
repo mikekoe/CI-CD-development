@@ -7,7 +7,7 @@ commands:
     steps:
       - slack/notify:
           event: fail
-          channel: "Udapeople CI/CD"
+          channel: udapeople-app-cicd
           template: basic_fail_1
   
 jobs:
@@ -113,7 +113,7 @@ jobs:
     steps:
     - slack/notify:
         event: pass
-        channel: "Udapeople CI/CD"
+        channel: udapeople-app-cicd
         template: success_tagged_deployment_1
 
 workflows:
