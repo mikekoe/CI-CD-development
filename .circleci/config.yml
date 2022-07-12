@@ -1,5 +1,17 @@
 version: 2.1
+orbs: 
+  slack: circleci/slack@4.10.1
+
+commands:
+  notify_on_failure:
+    steps:
+      - slack/notify:
+          event: fail
+          channel: Udapeople CI/CD
+          template: basic_fail_1
+  
 jobs:
+
   build_frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -13,6 +25,10 @@ jobs:
             cd frontend
             npm install
             npm run build    
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-builder
+      - notify_on_failure
 
   build_backend:
     docker:
@@ -27,7 +43,11 @@ jobs:
             cd backend
             npm install
             npm run build    
-  
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-builder
+      - notify_on_failure
+
   test-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -86,6 +106,14 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
+  notify_on_success:
+    docker:
+      - image: cimg/base:stable
+    steps:
+    - slack/notify:
+        event: pass
+        channel: Udapeople CI/CD
+        template: success_tagged_deployment_1
 
 workflows:
   default:
@@ -100,6 +128,8 @@ workflows:
           requires: [build_frontend]
       - scan-backend:
           requires: [build_backend]
+      - notify_on_success:
+          requires: [scan_backend]
 
           
 
