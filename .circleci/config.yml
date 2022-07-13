@@ -1,6 +1,6 @@
 version: 2.1
 orbs: 
-  slack: circleci/slack@4.1.0
+  slack: circleci/slack@4.10.1
 
 jobs:
   build_frontend:
@@ -93,7 +93,7 @@ jobs:
      
   notify:
     docker:
-      - image:  cimg/base:stable
+      - image:  'cimg/base:stable'
     steps:
       - slack/notify:
           channel:  udapeople-app-cicd
