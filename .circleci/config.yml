@@ -91,19 +91,22 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
      
-  deploy:
+  notify:
     docker:
-      - image: 'cimg/base:stable'
+      - image:  cimg/base:stable
     steps:
-      - run: echo "deploy my app"
       - slack/notify:
-          event: fail
-          channel: udapeople-app-cicd
+          channel:  udapeople-app-cicd
+          event:  fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: udapeople-app-cicd
+      -slack/notify:
+          channel:  udapeople-app-cicd
+          event:  pass
           template: success_tagged_deploy_1
+      -slack/notify:
+          channel:  udapeople-app-cicd
+          event:  pass
+          template: basic_success_1    
 
 workflows:
   default:
@@ -118,8 +121,8 @@ workflows:
           requires: [build_frontend]
       - scan-backend:
           requires: [build_backend]
-      - deploy:
+      - notify:
           context: slack-udapeople
-          requires: [scan-backend]
+          
           
 
