@@ -27,7 +27,7 @@ jobs:
       - save_cache:
           paths:  [frontend/node_modules]
           keys:   [frontend-builder]
-      - failure
+        - failure
   
   build_backend:
     docker:
@@ -45,7 +45,7 @@ jobs:
       - save_cache:
           paths:  [backend/node_modules]
           keys:   [backend-builder]
-      - failure
+        - failure
 
   test-frontend:
     docker:
@@ -61,9 +61,9 @@ jobs:
             npm install
             npm run test 
       - save_cache:
-          paths:  [frontend/node_modules]
-          keys:   [frontend-builder]
-      - failure
+            paths:  [frontend/node_modules]
+            keys:   [frontend-builder]
+        - failure
 
   test-backend:
     docker:
@@ -79,9 +79,9 @@ jobs:
             npm install
             npm run test 
       - save_cache:
-          paths:  [backend/node_modules]
-          keys:   [backend-builder]
-      - failure
+            paths:  [backend/node_modules]
+            keys:   [backend-builder]
+        - failure
 
   scan-frontend:
     docker:
@@ -98,9 +98,9 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
       - save_cache:
-          paths:  [frontend/node_modules]
-          keys:   [frontend-builder]
-      - failure
+            paths:  [frontend/node_modules]
+            keys:   [frontend-builder]
+        - failure
 
   scan-backend:
     docker:
@@ -118,9 +118,9 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
       - save_cache:
-          paths:  [backend/node_modules]
-          keys:   [backend-builder]
-      - failure
+            paths:  [backend/node_modules]
+            keys:   [backend-builder]
+        - failure
 
   success:
     docker:
@@ -150,8 +150,7 @@ workflows:
           requires: [build_backend]
       - success:
           context: slack-udapeople
-          requires: 
-            - scan-backend
+          requires: [scan-backend]
           
           
           
