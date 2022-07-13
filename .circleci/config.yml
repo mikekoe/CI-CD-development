@@ -15,13 +15,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm run build 
-      - save_cache:
-          paths: [backend/node_modules]
-          keys: frontend-builder
-      - notify
-
-
+            npm run builduh 
   
   build_backend:
     docker:
