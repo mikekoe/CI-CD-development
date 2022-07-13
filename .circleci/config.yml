@@ -26,7 +26,7 @@ jobs:
             npm run build
       - save_cache:
           paths:  [frontend/node_modules]
-          keys:   [frontend-builder]
+          key:   'frontend-builder'
       - failure
   
   build_backend:
@@ -35,7 +35,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-builder]
+          key: 'backend-builder'
       - run:
           name: Build-backend
           command: |
@@ -44,7 +44,7 @@ jobs:
             npm run build    
       - save_cache:
           paths:  [backend/node_modules]
-          keys:   [backend-builder]
+          key:   'backend-builder'
       - failure
 
   test-frontend:
@@ -62,7 +62,7 @@ jobs:
             npm run test 
       - save_cache:
           paths:  [frontend/node_modules]
-          keys:   [frontend-builder]
+          key:   'frontend-builder'
       - failure
 
   test-backend:
@@ -80,7 +80,7 @@ jobs:
             npm run test 
       - save_cache:
           paths:  [backend/node_modules]
-          keys:   [backend-builder]
+          key:   'backend-builder'
       - failure
 
   scan-frontend:
@@ -99,7 +99,7 @@ jobs:
             npm audit --audit-level=critical
       - save_cache:
           paths:  [frontend/node_modules]
-          keys:   [frontend-builder]
+          key:   'frontend-builder'
       - failure
 
   scan-backend:
@@ -119,7 +119,7 @@ jobs:
             npm audit --audit-level=critical
       - save_cache:
           paths:  [backend/node_modules]
-          keys:   [backend-builder]
+          key:   'backend-builder'
       - failure
 
   success:
