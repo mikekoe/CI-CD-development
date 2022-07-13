@@ -132,13 +132,8 @@ workflows:
           requires: [build_backend]
       - success:
           context: slack-udapeople
-          requires: 
-            - build_frontend
-            - build_backend
-            - test-frontend
-            - test-backend
-            - scan-frontend
-            - scan-backend
+          requires: [build_frontend]
+
           
           
           
