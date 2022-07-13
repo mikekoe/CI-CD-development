@@ -1,14 +1,6 @@
 version: 2.1
 orbs: 
-  slack: circleci/slack@4.10.1
-
-commands:
-  notify_on_failure:
-    steps:
-      - slack/notify:
-          event:  fail
-          channel:  udapeople-app-cicd
-          template: basic_fail_1
+  slack: circleci/slack@4.4.4
 
 jobs:
   build_frontend:
@@ -24,10 +16,10 @@ jobs:
             cd frontend
             npm install
             npm run build  
-      - save_cache:
-            paths: [frontend/node_modules]
-            key: frontend-builder
-      - notify_on_failure
+      - slack/notify:
+          channel: udapeople-app-cicd 
+          event: fail 
+          template: basic_fail_1 
   
   build_backend:
     docker:
@@ -42,11 +34,11 @@ jobs:
             cd backend
             npm install
             npm run build    
-      - save_cache:
-            paths: [backend/node_modules]
-            key: backend-builder
-      - notify_on_failure
-
+      - slack/notify:
+          channel: udapeople-app-cicd 
+          event: fail 
+          template: basic_fail_1
+               
   test-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -60,11 +52,7 @@ jobs:
             cd frontend
             npm install
             npm run test 
-      - save_cache:
-            paths: [frontend/node_modules]
-            key: frontend-builder
-      - notify_on_failure
-
+     
   test-backend:
     docker:
       - image:  cimg/node:13.8.0
@@ -78,11 +66,7 @@ jobs:
             cd backend
             npm install
             npm run test 
-      - save_cache:
-            paths: [backend/node_modules]
-            key: backend-builder
-      - notify_on_failure
-
+      
   scan-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -97,11 +81,6 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-
-      - save_cache:
-            paths: [frontend/node_modules]
-            key: frontend-builder
-      - notify_on_failure
 
   scan-backend:
     docker:
@@ -118,11 +97,7 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - save_cache:
-            paths: [backend/node_modules]
-            key: backend-builder
-      - notify_on_failure
-
+     
   notify_on_success:
     docker:
     - image: cimg/base:stable
@@ -147,6 +122,6 @@ workflows:
           requires: [build_backend]
       - notify_on_success:
           context: slack-udapeople
-          requires: [build_backend]
+          requires: [scan-backend]
           
 
