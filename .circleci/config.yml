@@ -24,9 +24,6 @@ jobs:
             cd frontend
             npm install
             npm run buildyg
-      - save_cache:
-          paths:  [frontend/node_modules]
-          key:   'frontend-builder'
       - failure
   
   build_backend:
@@ -35,16 +32,13 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: 'backend-builder'
+          key: [backend-builder]
       - run:
           name: Build-backend
           command: |
             cd backend
             npm install
             npm run build    
-      - save_cache:
-          paths:  [backend/node_modules]
-          key:   'backend-builder'
       - failure
 
   test-frontend:
@@ -60,9 +54,6 @@ jobs:
             cd frontend
             npm install
             npm run test 
-      - save_cache:
-          paths:  [frontend/node_modules]
-          key:   'frontend-builder'
       - failure
 
   test-backend:
@@ -78,9 +69,6 @@ jobs:
             cd backend
             npm install
             npm run test 
-      - save_cache:
-          paths:  [backend/node_modules]
-          key:   'backend-builder'
       - failure
 
   scan-frontend:
@@ -97,9 +85,6 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - save_cache:
-          paths:  [frontend/node_modules]
-          key:   'frontend-builder'
       - failure
 
   scan-backend:
@@ -117,9 +102,6 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - save_cache:
-          paths:  [backend/node_modules]
-          key:   'backend-builder'
       - failure
 
   success:
@@ -150,7 +132,13 @@ workflows:
           requires: [build_backend]
       - success:
           context: slack-udapeople
-          requires: [scan-backend]
+          requires: 
+            - build_frontend
+            - build_backend
+            - test-frontend
+            - test-backend
+            - scan-frontend
+            - scan-backend
           
           
           
