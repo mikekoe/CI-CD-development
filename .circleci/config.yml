@@ -2,14 +2,6 @@ version: 2.1
 orbs: 
   slack: circleci/slack@4.10.1
 
-commands:
-  notify_on_failure:
-    steps:
-      - slack/notify:
-          event:  fail
-          channel:  udapeople-app-cicd
-          template: basic_fail_1
-
 jobs:
   build_frontend:
     docker:
