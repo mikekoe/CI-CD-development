@@ -1,6 +1,5 @@
 version: 2.1
 orbs: 
-  node: 'circleci/node:4.1'
   slack: circleci/slack@4.1.0
 
 jobs:
@@ -93,16 +92,17 @@ jobs:
             npm audit --audit-level=critical
      
   deploy:
-    executor:
-      name: node/default
+    docker:
+      - image: 'cimg/base:stable'
     steps:
-      - checkout
-      - node/install-packages
-      - run:
-          command: npm run deploy
+      - run: echo "deploy my app"
       - slack/notify:
+          event: fail
           channel: udapeople-app-cicd
+          template: basic_fail_1
+      - slack/notify:
           event: pass
+          channel: udapeople-app-cicd
           template: success_tagged_deploy_1
 
 workflows:
