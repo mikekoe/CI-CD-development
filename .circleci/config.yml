@@ -122,7 +122,7 @@ workflows:
           requires: [build_backend]
       - notify:
           context: slack-udapeople
-          requires: [build_frontend]
+          requires: [build_frontend, build_backend]
           
           
 
