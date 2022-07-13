@@ -32,7 +32,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: [backend-builder]
+          keys: [backend-builder]
       - run:
           name: Build-backend
           command: |
