@@ -17,6 +17,11 @@ jobs:
             npm install
             npm run build  
 
+      - slack/notify:
+          channel:  udapeople-app-cicd
+          event:  fail
+          template: basic_fail_1
+
   
   build_backend:
     docker:
