@@ -1,30 +1,151 @@
 version: 2.1
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-jobs:
-  print_hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: circleci/node:13.8.0
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - run:  echo hello
-  print_world:
-    docker:
-      - image:  circleci/node:13.8.0
-    steps:
-      - run:  echo world
-workflows:
-  welcome:
-    jobs:
-      - welcome/run
-      - print_hello
-      - print_world:
-         requires:
-           - print_hello
+orbs: 
+  slack: circleci/slack@4.10.1
 
+commands:
+  notify_on_failure:
+    steps:
+      - slack/notify:
+          event:  fail
+          channel:  udapeople-app-cicd
+          template: basic_fail_1
+
+jobs:
+  build_frontend:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-builder]
+      - run:
+          name: Build-frontend
+          command: |
+            cd frontend
+            npm install
+            npm run build  
+      - save_cache:
+            paths: [frontend/node_modules]
+            key: frontend-builder
+      - notify_on_failure
+  
+  build_backend:
+    docker:
+      - image:  cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-builder]
+      - run:
+          name: Build-backend
+          command: |
+            cd backend
+            npm install
+            npm run build    
+      - save_cache:
+            paths: [backend/node_modules]
+            key: backend-builder
+      - notify_on_failure
+
+  test-frontend:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-builder]
+      - run:
+          name: Test-frontend
+          command: |
+            cd frontend
+            npm install
+            npm run test 
+      - save_cache:
+            paths: [frontend/node_modules]
+            key: frontend-builder
+      - notify_on_failure
+
+  test-backend:
+    docker:
+      - image:  cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-builder]
+      - run:
+          name: Test-backend
+          command: |
+            cd backend
+            npm install
+            npm run test 
+      - save_cache:
+            paths: [backend/node_modules]
+            key: backend-builder
+      - notify_on_failure
+
+  scan-frontend:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-builder]
+      - run:
+          name: Analyze-frontend
+          command: |
+            cd frontend
+            npm install
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
+
+      - save_cache:
+            paths: [frontend/node_modules]
+            key: frontend-builder
+      - notify_on_failure
+
+  scan-backend:
+    docker:
+      - image:  cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-builder]
+      - run:
+          name: Analyze-backend
+          command: |
+            cd backend
+            npm install
+            npm audit fix --force --audit-level=critical
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
+      - save_cache:
+            paths: [backend/node_modules]
+            key: backend-builder
+      - notify_on_failure
+
+  notify_on_success:
+    docker:
+    - image: cimg/base:stable
+    steps:
+    - slack/notify:
+        event: pass
+        channel: udapeople-app-cicd
+        template: success_tagged_deployment_1
+
+workflows:
+  default:
+    jobs:
+      - build_frontend
+      - build_backend
+      - test-frontend:
+          requires: [build_frontend]
+      - test-backend:
+          requires: [build_backend]
+      - scan-frontend:
+          requires: [build_frontend]
+      - scan-backend:
+          requires: [build_backend]
+      - notify_on_success:
+          requires: [build_backend]
           
 
