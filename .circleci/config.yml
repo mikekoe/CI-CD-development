@@ -63,7 +63,7 @@ jobs:
       - save_cache:
           paths:  [frontend/node_modules]
           keys:   [frontend-builder]
-        - failure
+      - failure
 
   test-backend:
     docker:
@@ -81,7 +81,7 @@ jobs:
       - save_cache:
           paths:  [backend/node_modules]
           keys:   [backend-builder]
-        - failure
+      - failure
 
   scan-frontend:
     docker:
@@ -100,7 +100,7 @@ jobs:
       - save_cache:
           paths:  [frontend/node_modules]
           keys:   [frontend-builder]
-        - failure
+      - failure
 
   scan-backend:
     docker:
