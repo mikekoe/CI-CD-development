@@ -146,7 +146,7 @@ workflows:
       - scan-backend:
           requires: [build_backend]
       - notify_on_success:
-          context:  slack-udapeople
-          requires: [scan-backend]
+          context: slack-udapeople
+          requires: [build_backend]
           
 
