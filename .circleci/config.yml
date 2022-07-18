@@ -142,7 +142,7 @@ workflows:
       - scan-frontend:
           requires: [build_frontend]
       - scan-backend:
-
+          requires: [build_backend]
           
 
           
