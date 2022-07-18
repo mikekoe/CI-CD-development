@@ -10,6 +10,20 @@ commands:
           event:  fail
           template: basic_fail_1
 
+  success:
+    steps:
+      - slack/notify:
+          channel:  udapeople-app-cicd
+          event:  pass
+          template: basic_success_1          
+
+  deploy:
+    steps:
+      - slack/notify:
+          channel:  udapeople-app-cicd
+          event:  pass
+          template: basic_success_1 
+
 jobs:
   build_frontend:
     docker:
@@ -21,10 +35,12 @@ jobs:
       - run:
           name: Build-frontend
           command: |
-            cd frontend
+            cd frontender
             npm install
             npm run buildyg
       - failure
+      - success
+      - deploy
   
   build_backend:
     docker:
@@ -40,6 +56,8 @@ jobs:
             npm install
             npm run build    
       - failure
+      - success
+      - deploy
 
   test-frontend:
     docker:
@@ -55,6 +73,8 @@ jobs:
             npm install
             npm run test 
       - failure
+      - success
+      - deploy
 
   test-backend:
     docker:
@@ -70,6 +90,8 @@ jobs:
             npm install
             npm run test 
       - failure
+      - success
+      - deploy
 
   scan-frontend:
     docker:
@@ -86,6 +108,8 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
       - failure
+      - success
+      - deploy
 
   scan-backend:
     docker:
@@ -103,19 +127,8 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
       - failure
-
-  success:
-    docker:
-      - image:  'cimg/base:stable'
-    steps:
-      - slack/notify:
-          channel:  udapeople-app-cicd
-          event:  pass
-          template: success_tagged_deploy_1
-      - slack/notify:
-          channel:  udapeople-app-cicd
-          event:  pass
-          template: basic_success_1    
+      - success
+      - deploy 
 
 workflows:
   default:
@@ -129,9 +142,7 @@ workflows:
       - scan-frontend:
           requires: [build_frontend]
       - scan-backend:
-          requires: [build_backend]
-      - success:
-          context: slack-udapeople
+
           
 
           
