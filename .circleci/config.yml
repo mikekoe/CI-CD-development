@@ -35,7 +35,7 @@ jobs:
       - run:
           name: Build-frontend
           command: |
-            cd frontender
+            cd frontend
             npm install
             npm run build
       - failure
