@@ -37,7 +37,7 @@ jobs:
           command: |
             cd frontender
             npm install
-            npm run buildyg
+            npm run build
       - failure
       - success
       - deploy
