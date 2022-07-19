@@ -201,7 +201,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - Project-3/.circleci/ansible/inventory.txt
+            - project/.circleci/ansible/inventory.txt
       - failure
       - success
       - deploy
