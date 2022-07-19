@@ -3,6 +3,25 @@ orbs:
   slack: circleci/slack@4.10.1
 
 commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            # Empty frontend bucket
+            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
+
+            # Delete frontend stack
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+
+            # Delete backend stack
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
   failure:
     steps:
       - slack/notify:
@@ -24,24 +43,6 @@ commands:
           event:  pass
           template: success_tagged_deploy_1 
   
-  install_awscli:
-    description: Install AWS CLI v2
-    steps:
-      - run:
-          name: Install AWS CLI v2
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-
-  install_ansible:
-    description: Install Ansible
-    steps:
-      - run:
-          name: Install Ansible
-          command: |
-            python3 -m pip install --user ansible
-
 jobs:
   build_frontend:
     docker:
@@ -148,6 +149,44 @@ jobs:
       - success
       - deploy 
 
+  deploy-infrastructure:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |     
+              aws cloudformation deploy \
+                --template-file .circleci/files/backend.yml \
+                --tags project=udapeople \
+                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: Ensure front-end infrastructure exists
+          command: |     
+              aws cloudformation deploy \
+                --template-file .circleci/files/frontend.yml \
+                --tags project=udapeople \
+                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo $BACKEND_PUBLIC_IP >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - Project-3/.circleci/ansible/inventory.txt
+      - failure
+      - success
+      - deploy
+      
 workflows:
   default:
     jobs:
@@ -161,6 +200,11 @@ workflows:
           requires: [build_frontend]
       - scan-backend:
           requires: [build_backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
           
 
           
