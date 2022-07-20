@@ -267,18 +267,18 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - install_awscli
       - install_nodejs
-      - restore_cache:
-          keys: [backend-builder]
       - run:
           name: Run migrations
           command: |
             cd backend
             npm install
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb.io
