@@ -272,10 +272,6 @@ jobs:
       - checkout
       - install_awscli
       - install_nodejs
-      - run:
-          name: Install npm dependencies
-          command:  |
-            apk add--update --no-cache tar gzip npm
       - restore_cache:
           keys: [backend-builder]
       - run:
@@ -312,10 +308,6 @@ jobs:
       - restore_cache:
           keys: [frontend-builder]
       - run:
-          name: Install npm dependencies
-          command:  |
-            apk add--update --no-cache tar gzip npm
-      - run:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
@@ -350,10 +342,6 @@ jobs:
       - install_ansible
       - add_ssh_keys:
           fingerprints: ["57:80:29:24:e0:08:3a:38:1d:b9:14:5c:85:59:f6:29"]
-      - run:
-          name: Install npm dependencies
-          command:  |
-            apk add--update --no-cache tar gzip npm
       - attach_workspace:
           at: ~/
       - restore_cache:
