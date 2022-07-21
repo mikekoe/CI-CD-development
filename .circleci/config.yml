@@ -208,7 +208,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/amazon/aws-cli
+      - image: cimg/python:3.10
     steps:
       - checkout
       - install_awscli
