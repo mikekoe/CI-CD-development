@@ -272,6 +272,10 @@ jobs:
       - checkout
       - install_awscli
       - install_nodejs
+      - run:
+          name: Install npm dependencies
+          command:  |
+            apk add--update --no-cache tar gzip npm
       - restore_cache:
           keys: [backend-builder]
       - run:
@@ -294,6 +298,7 @@ jobs:
       - revert-migrations
       - failure
       - success
+      - deploy
 
   deploy-frontend:
     docker:
@@ -304,6 +309,12 @@ jobs:
       - install_nodejs
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [frontend-builder]
+      - run:
+          name: Install npm dependencies
+          command:  |
+            apk add--update --no-cache tar gzip npm
       - run:
           name: Get backend url
           command: |
@@ -315,8 +326,6 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
-      - restore_cache:
-          keys: [frontend-builder]
       - run:
           name: Deploy frontend objects
           command: |
@@ -325,6 +334,45 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment
+      - revert-migrations
+      - failure
+      - success
+      - deploy
+
+  deploy-backend:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - install_awscli
+      - install_nodejs      
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints: ["57:80:29:24:e0:08:3a:38:1d:b9:14:5c:85:59:f6:29"]
+      - run:
+          name: Install npm dependencies
+          command:  |
+            apk add--update --no-cache tar gzip npm
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys: [backend-builder]
+      - run:
+          name: Deploy Backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            # list directory contents and print working directory
+            ls -a && pwd
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat  ~/inventory.txt
+            ansible-playbook -i ~/inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
       - failure
@@ -353,6 +401,10 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
           
 
           

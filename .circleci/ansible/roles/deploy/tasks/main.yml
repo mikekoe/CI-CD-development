@@ -1,0 +1,27 @@
+---
+
+- name: Creating directory for backend
+  file:
+    path: /home/ubuntu/app
+    state: directory
+
+- name: Extract and add Artifacts to EC2 instance
+  unarchive:
+    src: /home/circleci/project/artifact.tar.gz
+    dest: /home/ubuntu/app
+
+- name: install npm
+  become: true
+  shell: |
+    cd /home/ubuntu/app
+    npm install
+
+- name: Start node server daemon with pm2
+  become: true
+  shell: |
+    cd /home/ubuntu/app
+    pm2 start npm -- start
+  register: starting_server
+
+- debug:
+    msg: "{{ starting_server.stdout_lines }}"
