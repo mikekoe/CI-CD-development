@@ -75,8 +75,8 @@ commands:
           name: Install Ansible
           command: |
             sudo apt install python3.8 -y
-            sudo apt install python3-pip -y
-            python3 -m pip install --upgrade pip
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python3 get-pip.py --user
             python3 -m pip install --user ansible
           
   failure:
