@@ -338,8 +338,14 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_nodejs      
-      - install_ansible
+      - install_nodejs
+      - run:
+          name: install ansible
+          command: |
+            sudo apt install python3.8 -y
+            sudo apt install python3-pip -y
+            python3 -m pip install --upgrade pip
+            python3 -m pip install ansible --user
       - add_ssh_keys:
           fingerprints: ["57:80:29:24:e0:08:3a:38:1d:b9:14:5c:85:59:f6:29"]
       - attach_workspace:
