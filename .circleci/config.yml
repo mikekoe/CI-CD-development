@@ -34,7 +34,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure  https://kvdb.io/B4kJTq1riohKqpnN89rdDZ/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/QDb2NFjmq6pN7Dj1DNW6im/migration_<< parameters.Workflow_ID >>)
 
             # Logic for reverting the database state
             if (( $SUCCESS == 1 ));
@@ -267,17 +267,19 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/python:3.10
     steps:
       - checkout
       - install_awscli
       - install_nodejs
+      - restore_cache:
+          keys: [backend-builder]
       - run:
           name: Run migrations
           command: |
             cd backend
             npm install
-            npm audit fix 
+            npm run build
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb.io
