@@ -74,7 +74,10 @@ commands:
       - run:
           name: Install Ansible
           command: |
-            python3 -m pip install --user ansible
+            sudo apt install python3.8 -y
+            sudo apt install python3-pip -y
+            python3 -m pip install --upgrade pip
+            python3 -m pip install ansible --user
           
   failure:
     steps:
@@ -205,10 +208,11 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/amazon/aws-cli
     steps:
       - checkout
       - install_awscli
+      - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |     
@@ -244,7 +248,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -253,6 +257,9 @@ jobs:
           fingerprints: ["57:80:29:24:e0:08:3a:38:1d:b9:14:5c:85:59:f6:29"]
       - attach_workspace:
           at: ~/
+      - run:
+          name: Install open ssh 
+          command: apk add --update openssh-client git
       - run:
           name: Configure Server
           command: |
@@ -389,10 +396,10 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      #- deploy-frontend:
+      #    requires: [run-migrations]
+     # - deploy-backend:
+       #   requires: [run-migrations]
           
 
           

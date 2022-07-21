@@ -10,11 +10,6 @@
     src: /home/circleci/project/artifact.tar.gz
     dest: /home/ubuntu/app
 
-- name: install npm
-  become: true
-  shell: |
-    cd /home/ubuntu/app
-    npm install
 
 - name: Start node server daemon with pm2
   become: true
