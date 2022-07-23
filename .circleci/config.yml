@@ -472,16 +472,16 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
+      - build_frontend
+      - build_backend
       - test-frontend:
-          requires: [build-frontend]
+          requires: [build_frontend]
       - test-backend:
-          requires: [build-backend]
+          requires: [build_backend]
       - scan-backend:
-          requires: [build-backend]
+          requires: [build_backend]
       - scan-frontend:
-          requires: [build-frontend]
+          requires: [build_frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
@@ -499,6 +499,7 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-  
-          
+      - cleanup:
+          requires: [cloudfront-update]  
+      
 
