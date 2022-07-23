@@ -423,7 +423,7 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/python:3.10
     steps:
       - checkout
       #Install dependencies
@@ -446,7 +446,7 @@ jobs:
 
   cleanup:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/python:3.10
     steps:
       - checkout
       - run:
