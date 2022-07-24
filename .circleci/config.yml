@@ -6,7 +6,7 @@ parameters:
   workflow_id:
     type: string
     default: '${CIRCLE_WORKFLOW_ID:0:7}'
-    
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -451,9 +451,10 @@ jobs:
 
   cleanup:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/python:3.10
     steps:
       - checkout
+      - install_awscli
       - run:
           name: Get old stack workflow id and remove stacks
           command: |    # Fetch the Old workflow ID
