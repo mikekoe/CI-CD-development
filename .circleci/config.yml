@@ -2,11 +2,6 @@ version: 2.1
 orbs: 
   slack: circleci/slack@4.10.1
  
-parameters:
-  workflow_id:
-    type: string
-    default: '${CIRCLE_WORKFLOW_ID:0:7}'
-
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -79,11 +74,18 @@ commands:
       - run:
           name: Install Ansible
           command: |
+            python3 -m pip install --user ansible
+            python3 -m pip install --upgrade --user ansible
+
+  install_curl:
+    description: Install curl
+    steps:
+      - run:
+          name: Install curl
+          command: |
             sudo apt update
-            sudo apt install software-properties-common -y
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y
-           
+            sudo apt upgrade
+            
   failure:
     steps:
       - slack/notify:
@@ -347,7 +349,12 @@ jobs:
       - checkout
       - install_awscli
       - install_nodejs
-      - install_ansible
+      - run:
+          name: install ansible
+          command: |
+            sudo apt install python3-pip -y
+            python3 -m pip install --upgrade pip
+            python3 -m pip install ansible --user
       - add_ssh_keys:
           fingerprints: ["57:80:29:24:e0:08:3a:38:1d:b9:14:5c:85:59:f6:29"]
       - attach_workspace:
@@ -355,12 +362,13 @@ jobs:
       - restore_cache:
           keys: [backend-builder]
       - run:
-          name: Prepare Backend for Deployment
+          name: Deploy Backend
           command: |
             cd backend
             npm i
             npm run build
             cd ..
+            # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
@@ -380,6 +388,7 @@ jobs:
       #Install dependencies
       - install_awscli
       - install_nodejs
+      - install_curl
       - run:
           name: Backend Smoke Test
           command: |
@@ -420,6 +429,7 @@ jobs:
       # Install dependencies
       - install_awscli
       - install_nodejs
+      - install_curl
       - run:
           name: Save Old Workflow ID to kvdb.io
           command: |
@@ -434,8 +444,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
+              --stack-name InitialStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name InitialStack
+              --tags project=udapeople
       - destroy-environment
       - revert-migrations 
       - failure
