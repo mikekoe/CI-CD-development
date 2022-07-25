@@ -224,7 +224,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - run:
+      - run: #install
           name: Ensure back-end infrastructure exists
           command: |     
               aws cloudformation deploy \
