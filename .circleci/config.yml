@@ -460,7 +460,7 @@ jobs:
 
   cleanup:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/python:3.10
     steps:
       - checkout
       - install_awscli
@@ -472,6 +472,7 @@ jobs:
                 --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
+            
             export OldWorkflowID=$(curl --insecure https://kvdb.io/QDb2NFjmq6pN7Dj1DNW6im/old_workflow_id)
             echo Old Workflow ID: $OldWorkflowID 
 
