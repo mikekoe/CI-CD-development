@@ -367,7 +367,7 @@ jobs:
       - restore_cache:
           keys: [backend-builder]
       - run:
-          name: Deploy Backend
+          name: Prepare Backend for Deployment
           command: |
             cd backend
             npm i
@@ -375,6 +375,14 @@ jobs:
             cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
+
+      - run:
+          name: Deploy Backend
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -449,9 +457,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name InitialStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=udapeople
+              --stack-name InitialStack
       - destroy-environment
       - revert-migrations 
       - failure
