@@ -79,18 +79,11 @@ commands:
       - run:
           name: Install Ansible
           command: |
-            python3 -m pip install --user ansible
-            python3 -m pip install --upgrade --user ansible
-
-  install_curl:
-    description: Install curl
-    steps:
-      - run:
-          name: Install curl
-          command: |
             sudo apt update
-            sudo apt upgrade
-            
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+           
   failure:
     steps:
       - slack/notify:
@@ -354,12 +347,7 @@ jobs:
       - checkout
       - install_awscli
       - install_nodejs
-      - run:
-          name: install ansible
-          command: |
-            sudo apt install python3-pip -y
-            python3 -m pip install --upgrade pip
-            python3 -m pip install ansible --user
+      - install_ansible
       - add_ssh_keys:
           fingerprints: ["57:80:29:24:e0:08:3a:38:1d:b9:14:5c:85:59:f6:29"]
       - attach_workspace:
@@ -373,12 +361,7 @@ jobs:
             npm i
             npm run build
             cd ..
-            # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
-
-      - run:
-          name: Deploy Backend
-          command: |
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -397,7 +380,6 @@ jobs:
       #Install dependencies
       - install_awscli
       - install_nodejs
-      - install_curl
       - run:
           name: Backend Smoke Test
           command: |
@@ -438,7 +420,6 @@ jobs:
       # Install dependencies
       - install_awscli
       - install_nodejs
-      - install_curl
       - run:
           name: Save Old Workflow ID to kvdb.io
           command: |
