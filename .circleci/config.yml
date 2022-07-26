@@ -461,6 +461,7 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
+      #Install dependencies
       - install_awscli
       - install_nodejs
       - run:
