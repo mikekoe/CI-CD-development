@@ -465,7 +465,7 @@ jobs:
       - install_nodejs
       - run:
           name: Get and delete old stacks and files
-          command: |     # Fetch the Old workflow ID
+          command: |     #Fetch the Old workflow ID
             export STACKS=($(aws cloudformation list-stacks \
                 --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
